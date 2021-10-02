@@ -15,7 +15,8 @@
 package helmbase
 
 import (
-	"github.com/fatih/structs"
+	"encoding/json"
+
 	"github.com/pkg/errors"
 	"github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/helm/v3"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -120,7 +121,15 @@ func (args *ReleaseArgs) InitDefaults(chart, repo string, values interface{}) {
 	args.Values = args.Values.ToMapOutput().ApplyT(
 		func(t interface{}) map[string]interface{} {
 			// To make this work, we turn the struct into a map, and then merge it.
-			src := structs.Map(values)
+			// We serialize to JSON so we respect the `json:""` names in the struct.
+			var src map[string]interface{}
+			b, err := json.Marshal(values)
+			if err != nil {
+				panic(err)
+			}
+			if err = json.Unmarshal(b, &src); err != nil {
+				panic(err)
+			}
 			dst := t.(map[string]interface{})
 			for k, v := range src {
 				// TODO: should we do something special about deeply merging sub-maps?
