@@ -85,7 +85,7 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 		return nil, err
 	}
 
-	return nil, nil
+	return provider.NewConstructResult(c)
 }
 
 // ReleaseArgs is a lot like helm.ReleaseArgs, except that it doesn't require the
