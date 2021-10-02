@@ -32,6 +32,10 @@ type Chart interface {
 	// SetOutputs registers the resulting Helm Release child resource, after it
 	// has been created and registered. This contains the Status, among other things.
 	SetOutputs(rel *helm.Release)
+	// DefaultChartName returns the default name for this chart.
+	DefaultChartName() string
+	// DefaultRepo returns the default Helm repo URL for this chart.
+	DefaultRepoURL() string
 }
 
 // ChartArgs is a properly annotated structure (with `pulumi:""` and `json:""` tags)
@@ -45,8 +49,7 @@ type ChartArgs interface {
 // creates, registers, and returns the resulting component object. This contains most of
 // the boilerplate so that the calling component can be relatively simple.
 func Construct(ctx *pulumi.Context, c Chart, typ, name string,
-	args ChartArgs, inputs provider.ConstructInputs, defaultChart, defaultRepo string,
-	opts pulumi.ResourceOption) (*provider.ConstructResult, error) {
+	args ChartArgs, inputs provider.ConstructInputs, opts pulumi.ResourceOption) (*provider.ConstructResult, error) {
 
 	// Ensure we have the right token.
 	if et := c.Type(); typ != et {
@@ -67,7 +70,7 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 	// Provide default values for the Helm Release, including the chart name, repository
 	// to pull from, and blitting the strongly typed values into the weakly typed map.
 	relArgs := args.R()
-	relArgs.InitDefaults(defaultChart, defaultRepo, args.V())
+	relArgs.InitDefaults(c.DefaultChartName(), c.DefaultRepoURL(), args.V())
 
 	// Create the actual underlying Helm Chart resource.
 	rel, err := helm.NewRelease(ctx, name+"-helm", relArgs.To(), pulumi.Parent(c))
