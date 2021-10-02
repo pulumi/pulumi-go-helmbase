@@ -69,7 +69,7 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 	// Provide default values for the Helm Release, including the chart name, repository
 	// to pull from, and blitting the strongly typed values into the weakly typed map.
 	relArgs := args.R()
-	if relArgs == nil {
+	if *relArgs == nil {
 		*relArgs = &ReleaseArgs{}
 	}
 	(*relArgs).InitDefaults(c.DefaultChartName(), c.DefaultRepoURL(), args)
