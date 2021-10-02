@@ -1,4 +1,4 @@
-# pulumi-helm-chart-base
+# Pulumi Helm Chart Component Base
 
 This repository contains boilerplate for creating a [Pulumi Component Package](
 https://www.pulumi.com/docs/guides/pulumi-packages/) which wraps a Kubernetes [Helm Chart](https://helm.sh),
