@@ -41,7 +41,7 @@ type Chart interface {
 // ChartArgs is a properly annotated structure (with `pulumi:""` and `json:""` tags)
 // which carries the strongly typed argument payload for the given Chart resource.
 type ChartArgs interface {
-	R() *ReleaseArgs
+	R() **ReleaseArgs
 }
 
 // Construct is the RPC call that initiates the creation of a new Chart component. It
@@ -69,10 +69,13 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 	// Provide default values for the Helm Release, including the chart name, repository
 	// to pull from, and blitting the strongly typed values into the weakly typed map.
 	relArgs := args.R()
-	relArgs.InitDefaults(c.DefaultChartName(), c.DefaultRepoURL(), args)
+	if relArgs == nil {
+		*relArgs = &ReleaseArgs{}
+	}
+	(*relArgs).InitDefaults(c.DefaultChartName(), c.DefaultRepoURL(), args)
 
 	// Create the actual underlying Helm Chart resource.
-	rel, err := helm.NewRelease(ctx, name+"-helm", relArgs.To(), pulumi.Parent(c))
+	rel, err := helm.NewRelease(ctx, name+"-helm", (*relArgs).To(), pulumi.Parent(c))
 	if err != nil {
 		return nil, err
 	}
