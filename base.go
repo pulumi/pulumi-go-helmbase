@@ -81,7 +81,7 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 
 	// Finally, register the resulting Helm Release as a component output.
 	if err := ctx.RegisterResourceOutputs(c, pulumi.Map{
-		"release": rel,
+		"helmRelease": rel,
 	}); err != nil {
 		return nil, err
 	}
