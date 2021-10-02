@@ -1,4 +1,4 @@
-module github.com/joeduffy/pulumi-helm-chart-base
+module github.com/joeduffy/pulumi-go-helmbase
 
 go 1.16
 
