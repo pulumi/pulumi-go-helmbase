@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	FieldHelmReleaseOutput = "helmRelease"
-	FieldHelmOptionsInput  = "helmOptions"
+	FieldHelmStatusOutput = "status"
+	FieldHelmOptionsInput = "helmOptions"
 )
 
 // Chart represents a strongly typed Helm Chart resource. For the most part,
@@ -36,7 +36,7 @@ type Chart interface {
 	Type() string
 	// SetOutputs registers the resulting Helm Release child resource, after it
 	// has been created and registered. This contains the Status, among other things.
-	SetOutputs(rel *helmv3.Release)
+	SetOutputs(out helmv3.ReleaseStatusOutput)
 	// DefaultChartName returns the default name for this chart.
 	DefaultChartName() string
 	// DefaultRepo returns the default Helm repo URL for this chart.
@@ -66,8 +66,7 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 	}
 
 	// Register our component resource.
-	err := ctx.RegisterComponentResource(typ, name, c, opts)
-	if err != nil {
+	if err := ctx.RegisterComponentResource(typ, name, c, opts); err != nil {
 		return nil, err
 	}
 
@@ -84,11 +83,11 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 	if err != nil {
 		return nil, err
 	}
-	c.SetOutputs(rel)
+	c.SetOutputs(rel.Status)
 
 	// Finally, register the resulting Helm Release as a component output.
 	if err := ctx.RegisterResourceOutputs(c, pulumi.Map{
-		FieldHelmReleaseOutput: rel,
+		FieldHelmStatusOutput: rel,
 	}); err != nil {
 		return nil, err
 	}
