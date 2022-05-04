@@ -43,10 +43,82 @@ type Chart interface {
 	DefaultRepoURL() string
 }
 
+// ReleaseType added because it was deprecated upstream.
+type ReleaseType struct {
+	// If set, installation process purges chart on fail. `skipAwait` will be disabled automatically if atomic is used.
+	Atomic *bool `pulumi:"atomic"`
+	// Chart name to be installed. A path may be used.
+	Chart string `pulumi:"chart"`
+	// Allow deletion of new resources created in this upgrade when upgrade fails.
+	CleanupOnFail *bool `pulumi:"cleanupOnFail"`
+	// Create the namespace if it does not exist.
+	CreateNamespace *bool `pulumi:"createNamespace"`
+	// Run helm dependency update before installing the chart.
+	DependencyUpdate *bool `pulumi:"dependencyUpdate"`
+	// Add a custom description
+	Description *string `pulumi:"description"`
+	// Use chart development versions, too. Equivalent to version '>0.0.0-0'. If `version` is set, this is ignored.
+	Devel *bool `pulumi:"devel"`
+	// Prevent CRD hooks from, running, but run other hooks.  See helm install --no-crd-hook
+	DisableCRDHooks *bool `pulumi:"disableCRDHooks"`
+	// If set, the installation process will not validate rendered templates against the Kubernetes OpenAPI Schema
+	DisableOpenapiValidation *bool `pulumi:"disableOpenapiValidation"`
+	// Prevent hooks from running.
+	DisableWebhooks *bool `pulumi:"disableWebhooks"`
+	// Force resource update through delete/recreate if needed.
+	ForceUpdate *bool `pulumi:"forceUpdate"`
+	// Location of public keys used for verification. Used only if `verify` is true
+	Keyring *string `pulumi:"keyring"`
+	// Run helm lint when planning.
+	Lint *bool `pulumi:"lint"`
+	// The rendered manifests as JSON. Not yet supported.
+	Manifest map[string]interface{} `pulumi:"manifest"`
+	// Limit the maximum number of revisions saved per release. Use 0 for no limit.
+	MaxHistory *int `pulumi:"maxHistory"`
+	// Release name.
+	Name *string `pulumi:"name"`
+	// Namespace to install the release into.
+	Namespace *string `pulumi:"namespace"`
+	// Postrender command to run.
+	Postrender *string `pulumi:"postrender"`
+	// Perform pods restart during upgrade/rollback.
+	RecreatePods *bool `pulumi:"recreatePods"`
+	// If set, render subchart notes along with the parent.
+	RenderSubchartNotes *bool `pulumi:"renderSubchartNotes"`
+	// Re-use the given name, even if that name is already used. This is unsafe in production
+	Replace *bool `pulumi:"replace"`
+	// Specification defining the Helm chart repository to use.
+	RepositoryOpts helmv3.RepositoryOpts `pulumi:"repositoryOpts"`
+	// When upgrading, reset the values to the ones built into the chart.
+	ResetValues *bool `pulumi:"resetValues"`
+	// Names of resources created by the release grouped by "kind/version".
+	ResourceNames map[string][]string `pulumi:"resourceNames"`
+	// When upgrading, reuse the last release's values and merge in any overrides. If 'resetValues' is specified, this is ignored
+	ReuseValues *bool `pulumi:"reuseValues"`
+	// By default, the provider waits until all resources are in a ready state before marking the release as successful. Setting this to true will skip such await logic.
+	SkipAwait *bool `pulumi:"skipAwait"`
+	// If set, no CRDs will be installed. By default, CRDs are installed if not already present.
+	SkipCrds *bool `pulumi:"skipCrds"`
+	// Status of the deployed release.
+	Status helmv3.ReleaseStatus `pulumi:"status"`
+	// Time in seconds to wait for any individual kubernetes operation.
+	Timeout *int `pulumi:"timeout"`
+	// List of assets (raw yaml files). Content is read and merged with values. Not yet supported.
+	ValueYamlFiles []pulumi.AssetOrArchive `pulumi:"valueYamlFiles"`
+	// Custom values set for the release.
+	Values map[string]interface{} `pulumi:"values"`
+	// Verify the package before installing it.
+	Verify *bool `pulumi:"verify"`
+	// Specify the exact chart version to install. If this is not specified, the latest version is installed.
+	Version *string `pulumi:"version"`
+	// Will wait until all Jobs have been completed before marking the release as successful. This is ignored if `skipAwait` is enabled.
+	WaitForJobs *bool `pulumi:"waitForJobs"`
+}
+
 // ChartArgs is a properly annotated structure (with `pulumi:""` and `json:""` tags)
 // which carries the strongly typed argument payload for the given Chart resource.
 type ChartArgs interface {
-	R() **helmv3.ReleaseType
+	R() **ReleaseType
 }
 
 // Construct is the RPC call that initiates the creation of a new Chart component. It
@@ -74,7 +146,7 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 	// to pull from, and blitting the strongly typed values into the weakly typed map.
 	relArgs := args.R()
 	if *relArgs == nil {
-		*relArgs = &helmv3.ReleaseType{}
+		*relArgs = &ReleaseType{}
 	}
 	InitDefaults(*relArgs, c.DefaultChartName(), c.DefaultRepoURL(), args)
 
@@ -96,7 +168,7 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 }
 
 // InitDefaults copies the default chart, repo, and values onto the args struct.
-func InitDefaults(args *helmv3.ReleaseType, chart, repo string, values interface{}) {
+func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	// Most strongly typed charts will have a default chart name as well as a default
 	// repository location. If available, set those. The user might override these,
 	// so only initialize them if they're empty.
@@ -166,7 +238,7 @@ func toAssetOrArchiveArray(a []pulumi.AssetOrArchive) pulumi.AssetOrArchiveArray
 }
 
 // To turns the args struct into a Helm-ready ReleaseArgs struct.
-func To(args *helmv3.ReleaseType) *helmv3.ReleaseArgs {
+func To(args *ReleaseType) *helmv3.ReleaseArgs {
 	// Create the Helm Release args.
 	// TODO: it would be nice to do this automatically, e.g. using reflection, etc.
 	//     This is caused by the helm.ReleaseArgs type not actually having the struct
