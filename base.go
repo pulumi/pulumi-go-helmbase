@@ -48,7 +48,7 @@ type ReleaseType struct {
 	// If set, installation process purges chart on fail. `skipAwait` will be disabled automatically if atomic is used.
 	Atomic pulumi.BoolPtrInput `pulumi:"atomic"`
 	// Chart name to be installed. A path may be used.
-	Chart string `pulumi:"chart"`
+	Chart pulumi.StringInput `pulumi:"chart"`
 	// Allow deletion of new resources created in this upgrade when upgrade fails.
 	CleanupOnFail pulumi.BoolPtrInput `pulumi:"cleanupOnFail"`
 	// Create the namespace if it does not exist.
@@ -72,9 +72,9 @@ type ReleaseType struct {
 	// Run helm lint when planning.
 	Lint pulumi.BoolPtrInput `pulumi:"lint"`
 	// The rendered manifests as JSON. Not yet supported.
-	Manifest map[string]interface{} `pulumi:"manifest"`
+	Manifest pulumi.MapInput `pulumi:"manifest"`
 	// Limit the maximum number of revisions saved per release. Use 0 for no limit.
-	MaxHistory *int `pulumi:"maxHistory"`
+	MaxHistory pulumi.IntPtrInput `pulumi:"maxHistory"`
 	// Release name.
 	Name pulumi.StringPtrInput `pulumi:"name"`
 	// Namespace to install the release into.
@@ -88,11 +88,11 @@ type ReleaseType struct {
 	// Re-use the given name, even if that name is already used. This is unsafe in production
 	Replace pulumi.BoolPtrInput `pulumi:"replace"`
 	// Specification defining the Helm chart repository to use.
-	RepositoryOpts helmv3.RepositoryOpts `pulumi:"repositoryOpts"`
+	RepositoryOpts helmv3.RepositoryOptsArgs `pulumi:"repositoryOpts"`
 	// When upgrading, reset the values to the ones built into the chart.
 	ResetValues pulumi.BoolPtrInput `pulumi:"resetValues"`
 	// Names of resources created by the release grouped by "kind/version".
-	ResourceNames map[string][]string `pulumi:"resourceNames"`
+	ResourceNames pulumi.StringArrayMapInput `pulumi:"resourceNames"`
 	// When upgrading, reuse the last release's values and merge in any overrides. If 'resetValues' is specified, this is ignored
 	ReuseValues pulumi.BoolPtrInput `pulumi:"reuseValues"`
 	// By default, the provider waits until all resources are in a ready state before marking the release as successful. Setting this to true will skip such await logic.
@@ -102,7 +102,7 @@ type ReleaseType struct {
 	// Status of the deployed release.
 	Status helmv3.ReleaseStatus `pulumi:"status"`
 	// Time in seconds to wait for any individual kubernetes operation.
-	Timeout *int `pulumi:"timeout"`
+	Timeout pulumi.IntPtrInput `pulumi:"timeout"`
 	// List of assets (raw yaml files). Content is read and merged with values. Not yet supported.
 	ValueYamlFiles []pulumi.AssetOrArchive `pulumi:"valueYamlFiles"`
 	// Custom values set for the release.
@@ -172,11 +172,11 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	// Most strongly typed charts will have a default chart name as well as a default
 	// repository location. If available, set those. The user might override these,
 	// so only initialize them if they're empty.
-	if args.Chart == "" {
-		args.Chart = chart
+	if args.Chart == nil {
+		args.Chart = pulumi.String(chart)
 	}
 	if args.RepositoryOpts.Repo == nil {
-		args.RepositoryOpts.Repo = &repo
+		args.RepositoryOpts.Repo = toStringPtr(&repo)
 	}
 
 	// Blit the strongly typed values onto the weakly typed values, so that the Helm
@@ -246,7 +246,7 @@ func To(args *ReleaseType) *helmv3.ReleaseArgs {
 	//     https://github.com/pulumi/pulumi/issues/8112
 	return &helmv3.ReleaseArgs{
 		Atomic:                   args.Atomic,
-		Chart:                    pulumi.String(args.Chart),
+		Chart:                    args.Chart,
 		CleanupOnFail:            args.CleanupOnFail,
 		CreateNamespace:          args.CreateNamespace,
 		DependencyUpdate:         args.DependencyUpdate,
@@ -258,32 +258,25 @@ func To(args *ReleaseType) *helmv3.ReleaseArgs {
 		ForceUpdate:              args.ForceUpdate,
 		Keyring:                  args.Keyring,
 		Lint:                     args.Lint,
-		Manifest:                 pulumi.ToMap(args.Manifest),
-		MaxHistory:               toIntPtr(args.MaxHistory),
+		Manifest:                 args.Manifest,
+		MaxHistory:               args.MaxHistory,
 		Name:                     args.Name,
 		Namespace:                args.Namespace,
 		Postrender:               args.Postrender,
 		RecreatePods:             args.RecreatePods,
 		RenderSubchartNotes:      args.RenderSubchartNotes,
 		Replace:                  args.Replace,
-		RepositoryOpts: &helmv3.RepositoryOptsArgs{
-			CaFile:   toStringPtr(args.RepositoryOpts.CaFile),
-			CertFile: toStringPtr(args.RepositoryOpts.CertFile),
-			KeyFile:  toStringPtr(args.RepositoryOpts.KeyFile),
-			Password: toStringPtr(args.RepositoryOpts.Password),
-			Repo:     toStringPtr(args.RepositoryOpts.Repo),
-			Username: toStringPtr(args.RepositoryOpts.Username),
-		},
-		ResetValues:    args.ResetValues,
-		ResourceNames:  pulumi.ToStringArrayMap(args.ResourceNames),
-		ReuseValues:    args.ReuseValues,
-		SkipAwait:      args.SkipAwait,
-		SkipCrds:       args.SkipCrds,
-		Timeout:        toIntPtr(args.Timeout),
-		ValueYamlFiles: toAssetOrArchiveArray(args.ValueYamlFiles),
-		Values:         pulumi.ToMap(args.Values),
-		Verify:         args.Verify,
-		Version:        args.Version,
-		WaitForJobs:    args.WaitForJobs,
+		RepositoryOpts:           args.RepositoryOpts,
+		ResetValues:              args.ResetValues,
+		ResourceNames:            args.ResourceNames,
+		ReuseValues:              args.ReuseValues,
+		SkipAwait:                args.SkipAwait,
+		SkipCrds:                 args.SkipCrds,
+		Timeout:                  args.Timeout,
+		ValueYamlFiles:           toAssetOrArchiveArray(args.ValueYamlFiles),
+		Values:                   pulumi.ToMap(args.Values),
+		Verify:                   args.Verify,
+		Version:                  args.Version,
+		WaitForJobs:              args.WaitForJobs,
 	}
 }
