@@ -182,8 +182,16 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	// Blit the strongly typed values onto the weakly typed values, so that the Helm
 	// Release is constructed properly. In the event a value is present in both, the
 	// strongly typed values override the weakly typed map.
+	localMap := make(map[string]interface{})
 	if args.Values == nil {
-		args.Values = make(pulumi.Map)
+		args.Values = pulumi.ToMap(localMap)
+	} else {
+		args.Values.ToMapOutput().ApplyT(func(vals map[string]interface{}) map[string]interface{} {
+			for k, v := range vals {
+				localMap[k] = v
+			}
+			return localMap
+		})
 	}
 
 	// Decode the structure into the target map so we can copy it over to the values
@@ -201,7 +209,7 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	}
 
 	// Delete the HelmOptions input value -- it's not helpful and would cause a cycle.
-	delete(args.Values, FieldHelmOptionsInput)
+	delete(localMap, FieldHelmOptionsInput)
 }
 
 func toBoolPtr(p *bool) pulumi.BoolPtrInput {
