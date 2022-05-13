@@ -106,7 +106,7 @@ type ReleaseType struct {
 	// List of assets (raw yaml files). Content is read and merged with values. Not yet supported.
 	ValueYamlFiles []pulumi.AssetOrArchive `pulumi:"valueYamlFiles"`
 	// Custom values set for the release.
-	Values pulumi.MapInput `pulumi:"values"`
+	Values map[string]interface{} `pulumi:"values"`
 	// Verify the package before installing it.
 	Verify pulumi.BoolPtrInput `pulumi:"verify"`
 	// Specify the exact chart version to install. If this is not specified, the latest version is installed.
@@ -182,21 +182,15 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	// Blit the strongly typed values onto the weakly typed values, so that the Helm
 	// Release is constructed properly. In the event a value is present in both, the
 	// strongly typed values override the weakly typed map.
-	localMap := make(map[string]interface{})
-	if args.Values != nil {
-		args.Values.ToMapOutput().ApplyT(func(vals map[string]interface{}) map[string]interface{} {
-			for k, v := range vals {
-				localMap[k] = v
-			}
-			return localMap
-		})
+	if args.Values == nil {
+		args.Values = make(map[string]interface{})
 	}
 
 	// Decode the structure into the target map so we can copy it over to the values
 	// map, which is what the Helm Release expects. We use the `pulumi:"x"`
 	// tags to drive the naming of the resulting properties.
 	d, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Result:  &localMap,
+		Result:  &args.Values,
 		TagName: "pulumi",
 	})
 	if err != nil {
@@ -205,9 +199,8 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	if err = d.Decode(values); err != nil {
 		panic(err)
 	}
-	args.Values = pulumi.ToMap(localMap)
 	// Delete the HelmOptions input value -- it's not helpful and would cause a cycle.
-	delete(localMap, FieldHelmOptionsInput)
+	delete(args.Values, FieldHelmOptionsInput)
 }
 
 func toBoolPtr(p *bool) pulumi.BoolPtrInput {
@@ -280,7 +273,7 @@ func To(args *ReleaseType) *helmv3.ReleaseArgs {
 		SkipCrds:                 args.SkipCrds,
 		Timeout:                  args.Timeout,
 		ValueYamlFiles:           toAssetOrArchiveArray(args.ValueYamlFiles),
-		Values:                   args.Values,
+		Values:                   pulumi.ToMap(args.Values),
 		Verify:                   args.Verify,
 		Version:                  args.Version,
 		WaitForJobs:              args.WaitForJobs,
