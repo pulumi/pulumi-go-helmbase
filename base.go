@@ -183,9 +183,7 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	// Release is constructed properly. In the event a value is present in both, the
 	// strongly typed values override the weakly typed map.
 	localMap := make(map[string]interface{})
-	if args.Values == nil {
-		args.Values = pulumi.ToMap(localMap)
-	} else {
+	if args.Values != nil {
 		args.Values.ToMapOutput().ApplyT(func(vals map[string]interface{}) map[string]interface{} {
 			for k, v := range vals {
 				localMap[k] = v
@@ -198,7 +196,7 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	// map, which is what the Helm Release expects. We use the `pulumi:"x"`
 	// tags to drive the naming of the resulting properties.
 	d, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Result:  &args.Values,
+		Result:  &localMap,
 		TagName: "pulumi",
 	})
 	if err != nil {
@@ -207,7 +205,7 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	if err = d.Decode(values); err != nil {
 		panic(err)
 	}
-
+	args.Values = pulumi.ToMap(localMap)
 	// Delete the HelmOptions input value -- it's not helpful and would cause a cycle.
 	delete(localMap, FieldHelmOptionsInput)
 }
