@@ -106,7 +106,7 @@ type ReleaseType struct {
 	// List of assets (raw yaml files). Content is read and merged with values. Not yet supported.
 	ValueYamlFiles []pulumi.AssetOrArchive `pulumi:"valueYamlFiles"`
 	// Custom values set for the release.
-	Values map[string]interface{} `pulumi:"values"`
+	Values pulumi.MapInput `pulumi:"values"`
 	// Verify the package before installing it.
 	Verify pulumi.BoolPtrInput `pulumi:"verify"`
 	// Specify the exact chart version to install. If this is not specified, the latest version is installed.
@@ -183,7 +183,7 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	// Release is constructed properly. In the event a value is present in both, the
 	// strongly typed values override the weakly typed map.
 	if args.Values == nil {
-		args.Values = make(map[string]interface{})
+		args.Values = make(pulumi.Map)
 	}
 
 	// Decode the structure into the target map so we can copy it over to the values
@@ -274,7 +274,7 @@ func To(args *ReleaseType) *helmv3.ReleaseArgs {
 		SkipCrds:                 args.SkipCrds,
 		Timeout:                  args.Timeout,
 		ValueYamlFiles:           toAssetOrArchiveArray(args.ValueYamlFiles),
-		Values:                   pulumi.ToMap(args.Values),
+		Values:                   args.Values,
 		Verify:                   args.Verify,
 		Version:                  args.Version,
 		WaitForJobs:              args.WaitForJobs,
