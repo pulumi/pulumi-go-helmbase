@@ -46,73 +46,73 @@ type Chart interface {
 // ReleaseType added because it was deprecated upstream.
 type ReleaseType struct {
 	// If set, installation process purges chart on fail. `skipAwait` will be disabled automatically if atomic is used.
-	Atomic *bool `pulumi:"atomic"`
+	Atomic pulumi.BoolPtrInput `pulumi:"atomic"`
 	// Chart name to be installed. A path may be used.
-	Chart string `pulumi:"chart"`
+	Chart pulumi.StringInput `pulumi:"chart"`
 	// Allow deletion of new resources created in this upgrade when upgrade fails.
-	CleanupOnFail *bool `pulumi:"cleanupOnFail"`
+	CleanupOnFail pulumi.BoolPtrInput `pulumi:"cleanupOnFail"`
 	// Create the namespace if it does not exist.
-	CreateNamespace *bool `pulumi:"createNamespace"`
+	CreateNamespace pulumi.BoolPtrInput `pulumi:"createNamespace"`
 	// Run helm dependency update before installing the chart.
-	DependencyUpdate *bool `pulumi:"dependencyUpdate"`
+	DependencyUpdate pulumi.BoolPtrInput `pulumi:"dependencyUpdate"`
 	// Add a custom description
-	Description *string `pulumi:"description"`
+	Description pulumi.StringPtrInput `pulumi:"description"`
 	// Use chart development versions, too. Equivalent to version '>0.0.0-0'. If `version` is set, this is ignored.
-	Devel *bool `pulumi:"devel"`
+	Devel pulumi.BoolPtrInput `pulumi:"devel"`
 	// Prevent CRD hooks from, running, but run other hooks.  See helm install --no-crd-hook
-	DisableCRDHooks *bool `pulumi:"disableCRDHooks"`
+	DisableCRDHooks pulumi.BoolPtrInput `pulumi:"disableCRDHooks"`
 	// If set, the installation process will not validate rendered templates against the Kubernetes OpenAPI Schema
-	DisableOpenapiValidation *bool `pulumi:"disableOpenapiValidation"`
+	DisableOpenapiValidation pulumi.BoolPtrInput `pulumi:"disableOpenapiValidation"`
 	// Prevent hooks from running.
-	DisableWebhooks *bool `pulumi:"disableWebhooks"`
+	DisableWebhooks pulumi.BoolPtrInput `pulumi:"disableWebhooks"`
 	// Force resource update through delete/recreate if needed.
-	ForceUpdate *bool `pulumi:"forceUpdate"`
+	ForceUpdate pulumi.BoolPtrInput `pulumi:"forceUpdate"`
 	// Location of public keys used for verification. Used only if `verify` is true
-	Keyring *string `pulumi:"keyring"`
+	Keyring pulumi.StringPtrInput `pulumi:"keyring"`
 	// Run helm lint when planning.
-	Lint *bool `pulumi:"lint"`
+	Lint pulumi.BoolPtrInput `pulumi:"lint"`
 	// The rendered manifests as JSON. Not yet supported.
-	Manifest map[string]interface{} `pulumi:"manifest"`
+	Manifest pulumi.MapInput `pulumi:"manifest"`
 	// Limit the maximum number of revisions saved per release. Use 0 for no limit.
-	MaxHistory *int `pulumi:"maxHistory"`
+	MaxHistory pulumi.IntPtrInput `pulumi:"maxHistory"`
 	// Release name.
-	Name *string `pulumi:"name"`
+	Name pulumi.StringPtrInput `pulumi:"name"`
 	// Namespace to install the release into.
-	Namespace *string `pulumi:"namespace"`
+	Namespace pulumi.StringPtrInput `pulumi:"namespace"`
 	// Postrender command to run.
-	Postrender *string `pulumi:"postrender"`
+	Postrender pulumi.StringPtrInput `pulumi:"postrender"`
 	// Perform pods restart during upgrade/rollback.
-	RecreatePods *bool `pulumi:"recreatePods"`
+	RecreatePods pulumi.BoolPtrInput `pulumi:"recreatePods"`
 	// If set, render subchart notes along with the parent.
-	RenderSubchartNotes *bool `pulumi:"renderSubchartNotes"`
+	RenderSubchartNotes pulumi.BoolPtrInput `pulumi:"renderSubchartNotes"`
 	// Re-use the given name, even if that name is already used. This is unsafe in production
-	Replace *bool `pulumi:"replace"`
+	Replace pulumi.BoolPtrInput `pulumi:"replace"`
 	// Specification defining the Helm chart repository to use.
-	RepositoryOpts helmv3.RepositoryOpts `pulumi:"repositoryOpts"`
+	RepositoryOpts helmv3.RepositoryOptsArgs `pulumi:"repositoryOpts"`
 	// When upgrading, reset the values to the ones built into the chart.
-	ResetValues *bool `pulumi:"resetValues"`
+	ResetValues pulumi.BoolPtrInput `pulumi:"resetValues"`
 	// Names of resources created by the release grouped by "kind/version".
-	ResourceNames map[string][]string `pulumi:"resourceNames"`
+	ResourceNames pulumi.StringArrayMapInput `pulumi:"resourceNames"`
 	// When upgrading, reuse the last release's values and merge in any overrides. If 'resetValues' is specified, this is ignored
-	ReuseValues *bool `pulumi:"reuseValues"`
+	ReuseValues pulumi.BoolPtrInput `pulumi:"reuseValues"`
 	// By default, the provider waits until all resources are in a ready state before marking the release as successful. Setting this to true will skip such await logic.
-	SkipAwait *bool `pulumi:"skipAwait"`
+	SkipAwait pulumi.BoolPtrInput `pulumi:"skipAwait"`
 	// If set, no CRDs will be installed. By default, CRDs are installed if not already present.
-	SkipCrds *bool `pulumi:"skipCrds"`
+	SkipCrds pulumi.BoolPtrInput `pulumi:"skipCrds"`
 	// Status of the deployed release.
 	Status helmv3.ReleaseStatus `pulumi:"status"`
 	// Time in seconds to wait for any individual kubernetes operation.
-	Timeout *int `pulumi:"timeout"`
+	Timeout pulumi.IntPtrInput `pulumi:"timeout"`
 	// List of assets (raw yaml files). Content is read and merged with values. Not yet supported.
 	ValueYamlFiles []pulumi.AssetOrArchive `pulumi:"valueYamlFiles"`
 	// Custom values set for the release.
 	Values map[string]interface{} `pulumi:"values"`
 	// Verify the package before installing it.
-	Verify *bool `pulumi:"verify"`
+	Verify pulumi.BoolPtrInput `pulumi:"verify"`
 	// Specify the exact chart version to install. If this is not specified, the latest version is installed.
-	Version *string `pulumi:"version"`
+	Version pulumi.StringPtrInput `pulumi:"version"`
 	// Will wait until all Jobs have been completed before marking the release as successful. This is ignored if `skipAwait` is enabled.
-	WaitForJobs *bool `pulumi:"waitForJobs"`
+	WaitForJobs pulumi.BoolPtrInput `pulumi:"waitForJobs"`
 }
 
 // ChartArgs is a properly annotated structure (with `pulumi:""` and `json:""` tags)
@@ -172,11 +172,11 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	// Most strongly typed charts will have a default chart name as well as a default
 	// repository location. If available, set those. The user might override these,
 	// so only initialize them if they're empty.
-	if args.Chart == "" {
-		args.Chart = chart
+	if args.Chart == nil {
+		args.Chart = pulumi.String(chart)
 	}
 	if args.RepositoryOpts.Repo == nil {
-		args.RepositoryOpts.Repo = &repo
+		args.RepositoryOpts.Repo = toStringPtr(&repo)
 	}
 
 	// Blit the strongly typed values onto the weakly typed values, so that the Helm
@@ -199,7 +199,6 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	if err = d.Decode(values); err != nil {
 		panic(err)
 	}
-
 	// Delete the HelmOptions input value -- it's not helpful and would cause a cycle.
 	delete(args.Values, FieldHelmOptionsInput)
 }
@@ -245,45 +244,38 @@ func To(args *ReleaseType) *helmv3.ReleaseArgs {
 	//     tags we need to use it directly (not clear why this is the case!)
 	//     https://github.com/pulumi/pulumi/issues/8112
 	return &helmv3.ReleaseArgs{
-		Atomic:                   toBoolPtr(args.Atomic),
-		Chart:                    pulumi.String(args.Chart),
-		CleanupOnFail:            toBoolPtr(args.CleanupOnFail),
-		CreateNamespace:          toBoolPtr(args.CreateNamespace),
-		DependencyUpdate:         toBoolPtr(args.DependencyUpdate),
-		Description:              toStringPtr(args.Description),
-		Devel:                    toBoolPtr(args.Devel),
-		DisableCRDHooks:          toBoolPtr(args.DisableCRDHooks),
-		DisableOpenapiValidation: toBoolPtr(args.DisableOpenapiValidation),
-		DisableWebhooks:          toBoolPtr(args.DisableWebhooks),
-		ForceUpdate:              toBoolPtr(args.ForceUpdate),
-		Keyring:                  toStringPtr(args.Keyring),
-		Lint:                     toBoolPtr(args.Lint),
-		Manifest:                 pulumi.ToMap(args.Manifest),
-		MaxHistory:               toIntPtr(args.MaxHistory),
-		Name:                     toStringPtr(args.Name),
-		Namespace:                toStringPtr(args.Namespace),
-		Postrender:               toStringPtr(args.Postrender),
-		RecreatePods:             toBoolPtr(args.RecreatePods),
-		RenderSubchartNotes:      toBoolPtr(args.RenderSubchartNotes),
-		Replace:                  toBoolPtr(args.Replace),
-		RepositoryOpts: &helmv3.RepositoryOptsArgs{
-			CaFile:   toStringPtr(args.RepositoryOpts.CaFile),
-			CertFile: toStringPtr(args.RepositoryOpts.CertFile),
-			KeyFile:  toStringPtr(args.RepositoryOpts.KeyFile),
-			Password: toStringPtr(args.RepositoryOpts.Password),
-			Repo:     toStringPtr(args.RepositoryOpts.Repo),
-			Username: toStringPtr(args.RepositoryOpts.Username),
-		},
-		ResetValues:    toBoolPtr(args.ResetValues),
-		ResourceNames:  pulumi.ToStringArrayMap(args.ResourceNames),
-		ReuseValues:    toBoolPtr(args.ReuseValues),
-		SkipAwait:      toBoolPtr(args.SkipAwait),
-		SkipCrds:       toBoolPtr(args.SkipCrds),
-		Timeout:        toIntPtr(args.Timeout),
-		ValueYamlFiles: toAssetOrArchiveArray(args.ValueYamlFiles),
-		Values:         pulumi.ToMap(args.Values),
-		Verify:         toBoolPtr(args.Verify),
-		Version:        toStringPtr(args.Version),
-		WaitForJobs:    toBoolPtr(args.WaitForJobs),
+		Atomic:                   args.Atomic,
+		Chart:                    args.Chart,
+		CleanupOnFail:            args.CleanupOnFail,
+		CreateNamespace:          args.CreateNamespace,
+		DependencyUpdate:         args.DependencyUpdate,
+		Description:              args.Description,
+		Devel:                    args.Devel,
+		DisableCRDHooks:          args.DisableCRDHooks,
+		DisableOpenapiValidation: args.DisableOpenapiValidation,
+		DisableWebhooks:          args.DisableWebhooks,
+		ForceUpdate:              args.ForceUpdate,
+		Keyring:                  args.Keyring,
+		Lint:                     args.Lint,
+		Manifest:                 args.Manifest,
+		MaxHistory:               args.MaxHistory,
+		Name:                     args.Name,
+		Namespace:                args.Namespace,
+		Postrender:               args.Postrender,
+		RecreatePods:             args.RecreatePods,
+		RenderSubchartNotes:      args.RenderSubchartNotes,
+		Replace:                  args.Replace,
+		RepositoryOpts:           args.RepositoryOpts,
+		ResetValues:              args.ResetValues,
+		ResourceNames:            args.ResourceNames,
+		ReuseValues:              args.ReuseValues,
+		SkipAwait:                args.SkipAwait,
+		SkipCrds:                 args.SkipCrds,
+		Timeout:                  args.Timeout,
+		ValueYamlFiles:           toAssetOrArchiveArray(args.ValueYamlFiles),
+		Values:                   pulumi.ToMap(args.Values),
+		Verify:                   args.Verify,
+		Version:                  args.Version,
+		WaitForJobs:              args.WaitForJobs,
 	}
 }
