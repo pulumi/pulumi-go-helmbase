@@ -1,4 +1,4 @@
-module github.com/joeduffy/pulumi-go-helmbase
+module github.com/pulumi/pulumi-go-helmbase
 
 go 1.16
 
