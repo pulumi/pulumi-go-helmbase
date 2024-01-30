@@ -15,9 +15,10 @@
 package helmbase
 
 import (
+	"fmt"
+
 	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
-	helmv3 "github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/helm/v3"
+	helmv3 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/helm/v3"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/provider"
 )
@@ -129,12 +130,12 @@ func Construct(ctx *pulumi.Context, c Chart, typ, name string,
 
 	// Ensure we have the right token.
 	if et := c.Type(); typ != et {
-		return nil, errors.Errorf("unknown resource type %s; expected %s", typ, et)
+		return nil, fmt.Errorf("unknown resource type %s; expected %s", typ, et)
 	}
 
 	// Blit the inputs onto the arguments struct.
 	if err := inputs.CopyTo(args); err != nil {
-		return nil, errors.Wrap(err, "setting args")
+		return nil, fmt.Errorf("setting args: %w", err)
 	}
 
 	// Register our component resource.
