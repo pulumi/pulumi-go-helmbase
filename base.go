@@ -204,6 +204,7 @@ func InitDefaults(args *ReleaseType, chart, repo string, values interface{}) {
 	delete(args.Values, FieldHelmOptionsInput)
 }
 
+//nolint:unused // These may be useful in the future.
 func toBoolPtr(p *bool) pulumi.BoolPtrInput {
 	if p == nil {
 		return nil
@@ -211,6 +212,7 @@ func toBoolPtr(p *bool) pulumi.BoolPtrInput {
 	return pulumi.BoolPtr(*p)
 }
 
+//nolint:unused // These may be useful in the future.
 func toIntPtr(p *int) pulumi.IntPtrInput {
 	if p == nil {
 		return nil
