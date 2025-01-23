@@ -564,3 +564,79 @@ func (o ReleaseTypeOutput) Version() pulumi.StringPtrOutput {
 func (o ReleaseTypeOutput) WaitForJobs() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v ReleaseType) *bool { return v.WaitForJobs }).(pulumi.BoolPtrOutput)
 }
+
+// ReleaseTypePtrInput is an input type for *ReleaseTypeArgs values
+type ReleaseTypePtrInput interface {
+	pulumi.Input
+	ToReleaseTypePtrOutput() ReleaseTypePtrOutput
+	ToReleaseTypePtrOutputWithContext(context.Context) ReleaseTypePtrOutput
+	R() **ReleaseTypeArgs
+}
+
+// ReleaseTypePtrOutput is an output for *ReleaseTypeArgs values
+type ReleaseTypePtrOutput struct {
+	*pulumi.OutputState
+}
+
+func (ReleaseTypePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**ReleaseTypeArgs)(nil)).Elem()
+}
+
+func (o ReleaseTypePtrOutput) ToReleaseTypePtrOutput() ReleaseTypePtrOutput {
+	return o
+}
+
+func (o ReleaseTypePtrOutput) ToReleaseTypePtrOutputWithContext(ctx context.Context) ReleaseTypePtrOutput {
+	return o
+}
+
+// Elem returns a ReleaseTypeOutput representing the value pointed to by this pointer output
+func (o ReleaseTypePtrOutput) Elem() ReleaseTypeOutput {
+	return o.ApplyT(func(v *ReleaseTypeArgs) ReleaseTypeArgs {
+		if v != nil {
+			return *v
+		}
+		var zero ReleaseTypeArgs
+		return zero
+	}).(ReleaseTypeOutput)
+}
+
+// Implementation of ReleaseTypePtrInput
+type releaseTypePtrType ReleaseTypeArgs
+
+func (releaseTypePtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**ReleaseTypeArgs)(nil)).Elem()
+}
+
+func (i *releaseTypePtrType) ToReleaseTypePtrOutput() ReleaseTypePtrOutput {
+	return pulumi.ToOutput(i).(ReleaseTypePtrOutput)
+}
+
+func (i *releaseTypePtrType) ToReleaseTypePtrOutputWithContext(ctx context.Context) ReleaseTypePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ReleaseTypePtrOutput)
+}
+
+func (i *releaseTypePtrType) R() **ReleaseTypeArgs {
+	converted := ReleaseTypeArgs(*i)
+	convertedPtr := &converted
+	return &convertedPtr
+}
+
+// ReleaseTypePtr creates a new input of *ReleaseTypeArgs
+func ReleaseTypePtr(v *ReleaseTypeArgs) ReleaseTypePtrInput {
+	return (*releaseTypePtrType)(v)
+}
+
+// ReleaseTypeOutputPtr converts ReleaseTypeOutput to a pointer output
+func ReleaseTypeOutputPtr(v ReleaseTypeOutput) ReleaseTypePtrOutput {
+	return v.ApplyT(func(v ReleaseTypeArgs) *ReleaseTypeArgs {
+		return &v
+	}).(ReleaseTypePtrOutput)
+}
+
+func init() {
+	pulumi.RegisterInputType(reflect.TypeOf((*ReleaseTypeInput)(nil)).Elem(), ReleaseTypeArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ReleaseTypePtrInput)(nil)).Elem(), ReleaseTypeArgs{})
+	pulumi.RegisterOutputType(ReleaseTypePtrOutput{})
+	pulumi.RegisterOutputType(ReleaseTypeOutput{})
+}
