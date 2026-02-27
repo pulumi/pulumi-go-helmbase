@@ -1,6 +1,8 @@
 package helmbase
 
 import (
+	"context"
+	"reflect"
 	"testing"
 
 	helmv3 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/helm/v3"
@@ -80,11 +82,28 @@ func (m *MockChart) DefaultChartName() string                  { return m.chartN
 func (m *MockChart) DefaultRepoURL() string                    { return m.repoURL }
 
 type MockArgs struct {
-	release *ReleaseType
+	release *ReleaseTypeArgs
 }
 
-func (m *MockArgs) R() **ReleaseType {
+// ToReleaseTypeOutputWithContext implements ReleaseTypeInput.
+func (m *MockArgs) ToReleaseTypeOutputWithContext(ctx context.Context) ReleaseTypeOutput {
+	return pulumi.ToOutputWithContext(ctx, m).(ReleaseTypeOutput)
+}
+
+func (m *MockArgs) R() **ReleaseTypeArgs {
 	return &m.release
+}
+
+func (m *MockArgs) ToChartOutput() ReleaseTypeOutput {
+	return ReleaseTypeOutput{}
+}
+
+func (m *MockArgs) ToReleaseTypeOutput() ReleaseTypeOutput {
+	return ReleaseTypeOutput{}
+}
+
+func (m *MockArgs) ElementType() reflect.Type {
+	return reflect.TypeOf(m).Elem()
 }
 
 func TestConstruct(t *testing.T) {
@@ -99,7 +118,7 @@ func TestConstruct(t *testing.T) {
 			name:  "valid construction",
 			chart: nil, // Will be initialized later
 			args: &MockArgs{
-				release: &ReleaseType{
+				release: &ReleaseTypeArgs{
 					Values: map[string]interface{}{},
 				},
 			},
@@ -143,7 +162,7 @@ func TestConstruct(t *testing.T) {
 func TestInitDefaults(t *testing.T) {
 	tests := []struct {
 		name       string
-		args       *ReleaseType
+		args       *ReleaseTypeArgs
 		chart      string
 		repo       string
 		values     interface{}
@@ -151,7 +170,7 @@ func TestInitDefaults(t *testing.T) {
 	}{
 		{
 			name:  "empty args",
-			args:  &ReleaseType{},
+			args:  &ReleaseTypeArgs{},
 			chart: "test-chart",
 			repo:  "https://test-repo.com",
 			values: struct {
